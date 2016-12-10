@@ -301,24 +301,32 @@ module.exports = function ApiBuilder(options) {
 		interceptCallback = callback;
 	};
 	self.proxyRouter = function (event, context, callback) {
+		console.log('proxyRouter start');
 		var request = getRequest(event, context),
 			routingInfo,
 			handleError = function (e) {
+				console.log('handleError', e);
 				context.done(e);
 			};
 		context.callbackWaitsForEmptyEventLoop = false;
 		return executeInterceptor(request, context).then(function (modifiedRequest) {
-			if (!modifiedRequest) {
-				return context.done(null, null);
+      console.log('after executeInterceptor');
+      if (!modifiedRequest) {
+        console.log('context.done(null, null)');
+        return context.done(null, null);
 			} else if (isApiResponse(modifiedRequest)) {
-				return context.done(null, packResult(modifiedRequest, getRequestRoutingInfo(request), {}, 'success'));
+        console.log('context.done(null, packResult(modifiedRequest, getRequestRoutingInfo(request), {}, "success"))');
+        return context.done(null, packResult(modifiedRequest, getRequestRoutingInfo(request), {}, 'success'));
 			} else {
 				routingInfo = getRequestRoutingInfo(modifiedRequest);
 				if (routingInfo && routingInfo.path && routingInfo.method) {
-					return routeEvent(routingInfo, modifiedRequest, context, callback).then(function (result) {
-						context.done(null, result);
+					console.log('before routeEvent');
+				  return routeEvent(routingInfo, modifiedRequest, context, callback).then(function (result) {
+            console.log('context.done(null, result)');
+            context.done(null, result);
 					});
 				} else {
+					console.log('event does not contain routing information', event);
 					if (unsupportedEventCallback) {
 						unsupportedEventCallback(event, context, callback);
 					} else {

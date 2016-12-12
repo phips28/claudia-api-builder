@@ -166,30 +166,37 @@ module.exports = function ApiBuilder(options) {
 		routeEvent = function (routingInfo, event, context) {
 			var handler;
 			if (!routingInfo) {
+				console.error('routingInfo not set');
 				throw 'routingInfo not set';
 			}
 			handler = routes[routingInfo.path] && (
 				routes[routingInfo.path][routingInfo.method] ||
 				routes[routingInfo.path].ANY
 			);
+      console.log('handler', handler);
 			return getCorsHeaders(event, Object.keys(routes[routingInfo.path] || {})).then(function (corsHeaders) {
 				if (routingInfo.method === 'OPTIONS') {
-					return {
+          console.log('its OPTIONS');
+          return {
 						statusCode: 200,
 						body: '',
 						headers: corsHeaders
 					};
 				} else if (handler) {
-					return Promise.resolve().then(function () {
+          console.log('handler available');
+          return Promise.resolve().then(function () {
 						return handler(event, context);
 					}).then(function (result) {
-						return packResult(result, routingInfo, corsHeaders, 'success');
+            console.log('packResult success');
+            return packResult(result, routingInfo, corsHeaders, 'success');
 					}).catch(function (error) {
-						logError(error);
+            console.error('packResult error', error);
+            logError(error);
 						return packResult(error, routingInfo, corsHeaders, 'error');
 					});
 				} else {
-					return Promise.reject('no handler for ' + routingInfo.method + ' ' + routingInfo.path);
+				  console.error('no handler for ' + routingInfo.method + ' ' + routingInfo.path);
+          return Promise.reject('no handler for ' + routingInfo.method + ' ' + routingInfo.path);
 				}
 			});
 

@@ -173,7 +173,6 @@ module.exports = function ApiBuilder(options) {
 				routes[routingInfo.path][routingInfo.method] ||
 				routes[routingInfo.path].ANY
 			);
-      console.log('handler', handler);
 			return getCorsHeaders(event, Object.keys(routes[routingInfo.path] || {})).then(function (corsHeaders) {
 				if (routingInfo.method === 'OPTIONS') {
           console.log('its OPTIONS');
